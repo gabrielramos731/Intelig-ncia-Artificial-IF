@@ -18,17 +18,6 @@ def resultado(estado, acao):
     estado_tmp[acao[0]], estado_tmp[acao[1]] = estado_tmp[acao[1]], estado_tmp[acao[0]]  # swap de valores
     return estado_tmp
 
-def verifica_ancestrais(no):
-    '''Verifica se algum no ancestral é igual ao 'no' do argumento'''
-
-    estado_atual = no.estado
-    no_anterior = no.pai
-    while(no_anterior != None):
-        if(np.array_equal(estado_atual, no_anterior.estado)):
-            return False  # ancestral já gerado
-        no_anterior = no_anterior.pai
-    return True  # nenhum ancestral igual
-
 def conta_caminho(no):
     '''Conta o número de ações até o menor caminho'''
 
@@ -73,4 +62,3 @@ while(res == False):
 
 fim = time.time()
 print(fim - inicio)
- 
