@@ -14,8 +14,6 @@ def casos(estado):
 def resultado(estado, acao):
     '''Gera um novo estado com base em um estado passado e uma acao'''
 
-    global const_total
-    const_total += 1;
     estado_tmp = estado.copy()
     estado_tmp[acao[0]], estado_tmp[acao[1]] = estado_tmp[acao[1]], estado_tmp[acao[0]]  # swap de valores
     return estado_tmp
@@ -48,6 +46,7 @@ res = False
 cont = 0
 const_total = 0
 while(res == False):
+    const_total += 1
     no_atual = nos_validos[cont]
     for acao_no_atual_aux in no_atual.acoes:  # varre ações de um estado
         estado_atual_aux = resultado(no_atual.estado, acao_no_atual_aux)
