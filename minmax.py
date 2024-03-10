@@ -67,6 +67,31 @@ def final(no):  # OK
 def custo(no):  # OK (já tinha feito como ganhador)
     return ganhador(no)
 
+def minimax(no):
+    no.utilidade, acao = max_valor(no)
+    return acao
+
+def max_valor(no):
+    if(no.terminal):
+        return custo(no), None
+    v = -2  # valor ref. para máximo
+    for a in no.acoes:
+        v2, a2 = min_valor(resultado(no, a))
+        if(v2 > v):
+            v, mov = v2, a
+    return v, mov
+
+def min_valor(no):
+    if(no.terminal):
+        return custo(no), None
+    v = 2  # valor ref. para mínimo
+    for a in no.acoes:
+        v2, a2 = max_valor(resultado(no, a))
+        if(v2 < v):
+            v, mov = v2, a
+    return v, mov
+
+
 # 1 = x | -1 = o | 0 = vazio
 class No:
     def __init__(self, estado: list, pai: 'No'):
@@ -75,11 +100,14 @@ class No:
         self.player = jogador(self)
         self.acoes = acoes(estado)
         self.terminal = final(self)
+        self.utilidade = int
 
-estado_ini = [[1,1,-1],[-1,0,1],[1,1,-1]]
+estado_ini = [[0,0,0],[0,1,0],[0,0,0]]
 
 no_inicial = No(estado_ini, None)  # p 1
 no = No([[1,-1,1],[-1,1,0],[0,0,0]], no_inicial)
 
 # [print(aux.estado) for aux in expande_no(no_inicial)]
 # print(final(no_inicial))
+
+print(minimax(no_inicial))
