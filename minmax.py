@@ -91,6 +91,10 @@ def min_valor(no):
             v, mov = v2, a
     return v, mov
 
+def imprime_estado(no):
+    for linha in no.estado:
+        print(linha)
+    
 
 # 1 = x | -1 = o | 0 = vazio
 class No:
@@ -103,11 +107,20 @@ class No:
         self.utilidade = int
 
 estado_ini = [[0,0,0],[0,1,0],[0,0,0]]
+no_inicial = No(estado_ini, None)
+terminal = final(no_inicial)
 
-no_inicial = No(estado_ini, None)  # p 1
-no = No([[1,-1,1],[-1,1,0],[0,0,0]], no_inicial)
 
-# [print(aux.estado) for aux in expande_no(no_inicial)]
-# print(final(no_inicial))
-
-print(minimax(no_inicial))
+# Teste minimax (esta fazendo jogadas não otimizadas)
+no_aux = no_inicial
+imprime_estado(no_aux)
+while(terminal == False):
+    print("Escolha uma posicao para -1")
+    l = int(input())
+    c = int(input())
+    no_aux = No(resultado(no_aux, (l,c)).estado, no_aux)
+    imprime_estado(no_aux)
+    no_aux = No(resultado(no_aux, minimax(no_aux)).estado, no_aux)  # jogada minimax
+    print("Jogada minimax")
+    imprime_estado(no_aux)
+    terminal = no_aux.terminal
