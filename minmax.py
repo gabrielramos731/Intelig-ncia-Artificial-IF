@@ -53,16 +53,19 @@ def ganhador(no):  # OK
             return 1
         elif diagonal_secundaria == -3:
             return -1
-    return 0
+    return 0  # não acabou ou empate
 
-def final(no):
+def final(no):  # OK
     if(ganhador(no) == 1 or ganhador(no) == -1):
         return True
-    try:
-        [linha.index(0) for linha in no.estado]
-    except:
-        pass
-    return False
+    cont = 0
+    if(ganhador(no) == 0):
+        for linha in no.estado:
+            cont += linha.count(0)
+        return True if cont == 0 else False
+
+def custo(no):  # OK (já tinha feito como ganhador)
+    return ganhador(no)
 
 # 1 = x | -1 = o | 0 = vazio
 class No:
@@ -71,17 +74,12 @@ class No:
         self.pai = pai
         self.player = jogador(self)
         self.acoes = acoes(estado)
-        self.terminal: final(self)  # resolver isso
+        self.terminal = final(self)
 
-list.index
-estado_ini = [[1,0,-1],[0,-1,0],[-1,0,1]]
+estado_ini = [[1,1,-1],[-1,0,1],[1,1,-1]]
 
 no_inicial = No(estado_ini, None)  # p 1
 no = No([[1,-1,1],[-1,1,0],[0,0,0]], no_inicial)
 
-# print(no_inicial.estado)
-# print(resultado(no_inicial, (0,0)).estado)
-# print(no_inicial.estado)
-
 # [print(aux.estado) for aux in expande_no(no_inicial)]
-print(final(no_inicial))
+# print(final(no_inicial))
