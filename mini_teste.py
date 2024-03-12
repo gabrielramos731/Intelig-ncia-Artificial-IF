@@ -1,4 +1,5 @@
 from math import inf as infinity
+import numpy as np
 
 def copia_matriz(estado):  # OK testada
     return [linha[:] for linha in estado]
@@ -23,17 +24,13 @@ def resultado(no, acao):  # OK testada
     estado_aux[linha][coluna] = no.player
     return No(estado_aux, no.pai)
 
-def expande_no(no):  # OK nao to usando
-    nos_gerados = list()
-    for acao in no.acoes:
-        nos_gerados.append(resultado(no, acao))
-    return nos_gerados
-
 def ganhador(no):  # OK testada
     for linha in no.estado:  # verifica linhas
         if sum(linha) == 3:
+            no.utilidade = 1
             return 1
         elif sum(linha) == -3:
+            no.utilidade = -1
             return -1
     
         for j in range(3):  # verifica colunas
@@ -41,8 +38,10 @@ def ganhador(no):  # OK testada
             for i in range(3):
                 soma_coluna += no.estado[i][j]  # Some o elemento atual da coluna à soma da coluna
             if soma_coluna == 3:
+                no.utilidade = 1
                 return 1
             elif soma_coluna == -3:
+                no.utilidade = -1
                 return -1
             
         diagonal_principal = 0
@@ -52,9 +51,12 @@ def ganhador(no):  # OK testada
         for i in range(3):  # verifica diag. secundária
             diagonal_secundaria += no.estado[i][3 - 1 - i]
         if diagonal_principal == 3:
+            no.utilidade = 1
             return 1
         elif diagonal_secundaria == -3:
+            no.utilidade = -1
             return -1
+    no.utilidade = 0
     return 0  # não acabou ou empate
 
 def final(no):  # OK
@@ -69,30 +71,30 @@ def final(no):  # OK
 def custo(no):  # OK (já tinha feito como ganhador)
     return ganhador(no)
 
+def utility(no):
+    return no.utilidade if no.player == 1 else -no.utilidade
+
 def minimax(no):
-    _, acao = max_valor(no)
-    print(acao)
-    return acao
+    player = no.player
 
-def max_valor(no):
-    if(no.terminal):
-        return custo(no), None
-    v = -infinity # valor ref. para máximo
-    for a in no.acoes:
-        v2, _ = min_valor(resultado(no, a))
-        if(v2 > v):
-            v, mov = v2, a
-    return v, mov
+    def max_valor(no):
+        if(no.terminal):
+            return utility(no)
+        v = -np.inf # valor ref. para máximo
+        for a in no.acoes:
+            v = max(v, min_valor(resultado(no, a)))
+        return v
 
-def min_valor(no):
-    if(no.terminal):
-        return custo(no), None
-    v = infinity  # valor ref. para mínimo
-    for a in no.acoes:
-        v2, _ = max_valor(resultado(no, a))
-        if(v2 < v):
-            v, mov = v2, a
-    return v, mov
+    def min_valor(no):
+        if(no.terminal):
+            return utility(no)
+        v = np.inf  # valor ref. para mínimo
+        for a in no.acoes:
+            v = min(v, max_valor(resultado(no, a)))
+        return v
+    
+    return max(no.acoes, key=lambda a: min_valor(resultado(no, a)))
+
 
 def imprime_estado(no):
     for linha in no.estado:
@@ -106,14 +108,15 @@ class No:
         self.player = jogador(self)
         self.acoes = acoes(estado)
         self.terminal = final(self)
-        self.utilidade = int
-
-# terminal = final(no_inicial)
+        self.utilidade = ganhador(self)
 
 estado_ini = [[0,0,0],
               [0,0,0],
               [0,0,0]]
 no_inicial = No(estado_ini, None)
+
+# print(no_inicial.utilidade)
+# print(utility(no_inicial))
 
 
 # Teste minimax (esta fazendo jogadas não otimizadas)

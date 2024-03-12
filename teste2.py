@@ -1,4 +1,6 @@
 from math import inf as infinity
+import numpy as np
+import random
 
 def copia_matriz(estado):  # OK testada
     return [linha[:] for linha in estado]
@@ -23,17 +25,13 @@ def resultado(no, acao):  # OK testada
     estado_aux[linha][coluna] = no.player
     return No(estado_aux, no.pai)
 
-def expande_no(no):  # OK nao to usando
-    nos_gerados = list()
-    for acao in no.acoes:
-        nos_gerados.append(resultado(no, acao))
-    return nos_gerados
-
 def ganhador(no):  # OK testada
     for linha in no.estado:  # verifica linhas
         if sum(linha) == 3:
+            no.utilidade = 1
             return 1
         elif sum(linha) == -3:
+            no.utilidade = -1
             return -1
     
         for j in range(3):  # verifica colunas
@@ -41,20 +39,32 @@ def ganhador(no):  # OK testada
             for i in range(3):
                 soma_coluna += no.estado[i][j]  # Some o elemento atual da coluna à soma da coluna
             if soma_coluna == 3:
+                no.utilidade = 1
                 return 1
             elif soma_coluna == -3:
+                no.utilidade = -1
                 return -1
             
         diagonal_principal = 0
         diagonal_secundaria = 0
         for i in range(3):  # verifica diag. pricipal
             diagonal_principal += no.estado[i][i]
+        if diagonal_principal == 3:
+            no.utilidade = 1
+            return 1
+        if diagonal_principal == -3:
+            no.utilidade = -1
+            return -1
+            
         for i in range(3):  # verifica diag. secundária
             diagonal_secundaria += no.estado[i][3 - 1 - i]
-        if diagonal_principal == 3:
+        if diagonal_secundaria == 3:
+            no.utilidade = 1
             return 1
-        elif diagonal_secundaria == -3:
+        if diagonal_secundaria == -3:
+            no.utilidade = -1
             return -1
+    no.utilidade = 0
     return 0  # não acabou ou empate
 
 def final(no):  # OK
@@ -69,30 +79,30 @@ def final(no):  # OK
 def custo(no):  # OK (já tinha feito como ganhador)
     return ganhador(no)
 
+def utility(no):
+    """Return the value to player; 1 for win, -1 for loss, 0 otherwise."""
+    return no.utilidade if no.player == 1 else -no.utilidade
+
 def minimax(no):
-    _, acao = max_valor(no)
-    print(acao)
-    return acao
+    print(no.acoes)
+    print(max(no.acoes, key=lambda a: min_value(resultado(no, a))))
+    return max(no.acoes, key=lambda a: min_value(resultado(no, a)))
 
-def max_valor(no):
-    if(no.terminal):
-        return custo(no), None
-    v = -infinity # valor ref. para máximo
+def max_value(no):
+    if no.terminal:
+        return ganhador(no)
+    v = -np.inf
     for a in no.acoes:
-        v2, _ = min_valor(resultado(no, a))
-        if(v2 > v):
-            v, mov = v2, a
-    return v, mov
+        v = max(v, min_value(resultado(no, a)))
+    return v
 
-def min_valor(no):
-    if(no.terminal):
-        return custo(no), None
-    v = infinity  # valor ref. para mínimo
+def min_value(no):
+    if no.terminal:
+        return ganhador(no)
+    v = np.inf
     for a in no.acoes:
-        v2, _ = max_valor(resultado(no, a))
-        if(v2 < v):
-            v, mov = v2, a
-    return v, mov
+        v = min(v, max_value(resultado(no, a)))
+    return v
 
 def imprime_estado(no):
     for linha in no.estado:
@@ -106,28 +116,30 @@ class No:
         self.player = jogador(self)
         self.acoes = acoes(estado)
         self.terminal = final(self)
-        self.utilidade = int
+        self.utilidade = ganhador(self)  # OK
 
-# terminal = final(no_inicial)
 
-estado_ini = [[0,0,0],
+# ini_l = random.randint(0, 2)
+# ini_c = random.randint(0, 2)
+estado_ini = [[0,1,1],
               [0,0,0],
               [0,0,0]]
+# estado_ini[ini_l][ini_c] =  1
 no_inicial = No(estado_ini, None)
 
 
-# Teste minimax (esta fazendo jogadas não otimizadas)
-no_aux = no_inicial
-no_aux = No(resultado(no_aux, minimax(no_aux)).estado, no_aux)  # jogada minimax
-imprime_estado(no_aux)
-terminal = False
-while(terminal == False):
-    print("Escolha uma posicao para -1")
-    entrada = input()
-    l, c = entrada.split()
-    no_aux = No(resultado(no_aux, (int(l),int(c))).estado, no_aux)
-    imprime_estado(no_aux)
-    no_aux = No(resultado(no_aux, minimax(no_aux)).estado, no_aux)  # jogada minimax
-    print("Jogada minimax")
-    imprime_estado(no_aux)
-    terminal = no_aux.terminal
+
+# no_aux = no_inicial
+# no_aux = No(resultado(no_aux, minimax(no_aux)).estado, no_inicial)  # jogada minimax
+# imprime_estado(no_aux)
+# terminal = False
+# while(terminal == False):
+#     print("Escolha uma posicao para -1")
+#     entrada = input()
+#     l, c = entrada.split()
+#     no_aux = No(resultado(no_aux, (int(l),int(c))).estado, no_aux)
+#     imprime_estado(no_aux)
+#     no_aux = No(resultado(no_aux, minimax(no_aux)).estado, no_aux)  # jogada minimax
+#     print("Jogada minimax")
+#     imprime_estado(no_aux)
+#     terminal = no_aux.terminal
