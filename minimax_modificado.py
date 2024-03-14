@@ -89,9 +89,9 @@ def ganhador(state):
     # Check if there is a winner in the current state
     # Return 'X' if X wins, 'O' if O wins, or None if there is no winner
     winning_combinations = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],  # linhas
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Colunas
-        [0, 4, 8], [2, 4, 6]  # Diagonais
+        [0, 1, 2, 3, 4], [5,6,7,8,9], [10,11,12,13,14], [15,16,17,18,19], [20,21,22,23,24],  # linhas
+        [0, 5,10,15,20], [1,6,11,16,21], [2,6,12,17,22], [3,7,13,18,23], [4,8,14,19,24], # Colunas
+        [0,6,12,18,24], [4,8,12,16,20]  # Diagonais
     ]
     for combination in winning_combinations:
         if state[combination[0]] == state[combination[1]] == state[combination[2]] != ' ':
@@ -106,14 +106,21 @@ def is_board_full(state):
 def imprime_estado(state):
     for idx, elemento in enumerate(state):
         print(f'| { elemento } |', end='') if elemento != ' ' else print(f'| - |', end='')
-        if((idx+1) % 3 == 0):
+        if((idx+1) % 5 == 0):
             print('\n')
-    print("\n")
 
 
-estado_ini = [' ',' ',' ',
-              ' ',' ',' ',
-              ' ',' ',' ']
+estado_ini = [' ',' ',' ',' ',' ',
+              ' ',' ',' ',' ',' ',
+              ' ',' ',' ',' ',' ',
+              ' ',' ',' ',' ',' ',
+              ' ',' ',' ',' ',' ']
+
+# estado_ini = ['X','O','O',' ','X',
+#               ' ','X',' ','O',' ',
+#               'O',' ','O',' ','X',
+#               ' ','O','X',' ','O',
+#               'X','O','X',' ',' ']
 
 # # Teste minimax (esta fazendo jogadas não otimizadas)
 
