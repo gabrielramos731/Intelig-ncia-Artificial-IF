@@ -1,133 +1,129 @@
-from math import inf as infinity
+def minimax(state):
+    if final(state):
+        return custo(state)
 
-def copia_matriz(estado):  # OK testada
-    return [linha[:] for linha in estado]
+    if is_maximizing_player(state):
+        best_value = -1000
+        best_action = None
+        for action in acoes(state):
+            new_state = resultado(state, action)
+            value = min_valor(new_state)
+            if value > best_value:
+                best_value = value
+                best_action = action
+        return best_action
 
-def jogador(no):  # OK testada
-    if no.pai == None:
-        return -1 if sum([sum(line) for line in no.estado]) == 1 else 1
     else:
-        return -1 * no.pai.player
+        best_value = 1000
+        best_action = None
+        for action in acoes(state):
+            new_state = resultado(state, action)
+            value = max_valor(new_state)
+            if value < best_value:
+                best_value = value
+                best_action = action
+        return best_action
 
-def acoes(estado):  # OK testada
-    indices = []
-    for i, linha in enumerate(estado):
-        for j, elemento in enumerate(linha):
-            if elemento == 0:
-                indices.append((i, j))
-    return indices
+def max_valor(state):
+    if final(state):
+        return custo(state)
 
-def resultado(no, acao):  # OK testada
-    linha, coluna = acao
-    estado_aux = copia_matriz(no.estado)
-    estado_aux[linha][coluna] = no.player
-    return No(estado_aux, no.pai)
+    best_value = float('-inf')
+    for action in acoes(state):
+        new_state = resultado(state, action)
+        value = min_valor(new_state)
+        best_value = max(best_value, value)
+    return best_value
 
-def expande_no(no):  # OK nao to usando
-    nos_gerados = list()
-    for acao in no.acoes:
-        nos_gerados.append(resultado(no, acao))
-    return nos_gerados
+def min_valor(state):
+    if final(state):
+        return custo(state)
 
-def ganhador(no):  # OK testada
-    for linha in no.estado:  # verifica linhas
-        if sum(linha) == 3:
-            return 1
-        elif sum(linha) == -3:
-            return -1
-    
-        for j in range(3):  # verifica colunas
-            soma_coluna = 0
-            for i in range(3):
-                soma_coluna += no.estado[i][j]  # Some o elemento atual da coluna à soma da coluna
-            if soma_coluna == 3:
-                return 1
-            elif soma_coluna == -3:
-                return -1
-            
-        diagonal_principal = 0
-        diagonal_secundaria = 0
-        for i in range(3):  # verifica diag. pricipal
-            diagonal_principal += no.estado[i][i]
-        for i in range(3):  # verifica diag. secundária
-            diagonal_secundaria += no.estado[i][3 - 1 - i]
-        if diagonal_principal == 3:
-            return 1
-        elif diagonal_secundaria == -3:
-            return -1
-    return 0  # não acabou ou empate
+    best_value = float('inf')
+    for action in acoes(state):
+        new_state = resultado(state, action)
+        value = max_valor(new_state)
+        best_value = min(best_value, value)
+    return best_value
 
-def final(no):  # OK
-    if(ganhador(no) == 1 or ganhador(no) == -1):
+def final(state):
+    # Check if the state is a terminal state
+    # Return True or False
+    if ganhador(state) or is_board_full(state):
         return True
-    cont = 0
-    if(ganhador(no) == 0):
-        for linha in no.estado:
-            cont += linha.count(0)
-        return True if cont == 0 else False
+    return False
 
-def custo(no):  # OK (já tinha feito como ganhador)
-    return ganhador(no)
+def custo(state):
+    # custo the state and return a score
+    if ganhador(state) == 'X':
+        return 1
+    elif ganhador(state) == 'O':
+        return -1
+    else:
+        return 0
 
-def minimax(no):
-    _, acao = max_valor(no)
-    print(acao)
-    return acao
+def is_maximizing_player(state):
+    # Check if it's the turn of the maximizing player
+    # Return True or False
+    if state.count('X') == state.count('O'):
+        return False
+    return True
 
-def max_valor(no):
-    if(no.terminal):
-        return custo(no), None
-    v = -infinity # valor ref. para máximo
-    for a in no.acoes:
-        v2, _ = min_valor(resultado(no, a))
-        if(v2 > v):
-            v, mov = v2, a
-    return v, mov
+def acoes(state):
+    # Get a list of possible actions from the current state
+    # Return a list of actions
+    actions = []
+    for i in range(len(state)):
+        if state[i] == ' ':
+            actions.append(i)
+    return actions
 
-def min_valor(no):
-    if(no.terminal):
-        return custo(no), None
-    v = infinity  # valor ref. para mínimo
-    for a in no.acoes:
-        v2, _ = max_valor(resultado(no, a))
-        if(v2 < v):
-            v, mov = v2, a
-    return v, mov
+def resultado(state, action):
+    # Make a move in the current state based on the given action
+    # Return the new state
+    new_state = list(state)
+    new_state[action] = 'X' if is_maximizing_player(state) else 'O'
+    return ''.join(new_state)
 
-def imprime_estado(no):
-    for linha in no.estado:
-        print(linha)
+def ganhador(state):
+    # Check if there is a winner in the current state
+    # Return 'X' if X wins, 'O' if O wins, or None if there is no winner
+    winning_combinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],  # linhas
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Colunas
+        [0, 4, 8], [2, 4, 6]  # Diagonais
+    ]
+    for combination in winning_combinations:
+        if state[combination[0]] == state[combination[1]] == state[combination[2]] != ' ':
+            return state[combination[0]]
+    return None
 
-# 1 = x | -1 = o | 0 = vazio
-class No:
-    def __init__(self, estado: list, pai: 'No'):
-        self.estado = estado
-        self.pai = pai
-        self.player = jogador(self)
-        self.acoes = acoes(estado)
-        self.terminal = final(self)
-        self.utilidade = int
+def is_board_full(state):
+    # Check if the board is full
+    # Return True or False
+    return True if ' ' not in state else False
 
-# terminal = final(no_inicial)
-
-estado_ini = [[0,0,0],
-              [0,0,0],
-              [0,0,0]]
-no_inicial = No(estado_ini, None)
+def imprime_estado(state):
+    for idx, elemento in enumerate(state):
+        print(f'| { elemento } |', end='') if elemento != ' ' else print(f'| - |', end='')
+        if((idx+1) % 3 == 0):
+            print('\n')
 
 
-# Teste minimax (esta fazendo jogadas não otimizadas)
-no_aux = no_inicial
-no_aux = No(resultado(no_aux, minimax(no_aux)).estado, no_aux)  # jogada minimax
-imprime_estado(no_aux)
-terminal = False
-while(terminal == False):
-    print("Escolha uma posicao para -1")
-    entrada = input()
-    l, c = entrada.split()
-    no_aux = No(resultado(no_aux, (int(l),int(c))).estado, no_aux)
-    imprime_estado(no_aux)
-    no_aux = No(resultado(no_aux, minimax(no_aux)).estado, no_aux)  # jogada minimax
-    print("Jogada minimax")
-    imprime_estado(no_aux)
-    terminal = no_aux.terminal
+estado_ini = [' ',' ',' ',
+              ' ',' ',' ',
+              ' ',' ',' ']
+
+# # Teste minimax (esta fazendo jogadas não otimizadas)
+
+while(not final(estado_ini)):
+    imprime_estado(estado_ini)
+    pos = int(input("Escolha uma posição para 'O': "))-1
+    estado_ini[pos] = 'O'
+    imprime_estado(estado_ini)
+    if(final(estado_ini)):
+        break
+    estado_ini[minimax(estado_ini)] = 'X'
+    imprime_estado(estado_ini)
+    if(final(estado_ini)):
+        break
