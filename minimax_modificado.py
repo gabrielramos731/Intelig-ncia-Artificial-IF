@@ -94,7 +94,7 @@ def ganhador(state):
         [0,6,12,18,24], [4,8,12,16,20]  # Diagonais
     ]
     for combination in winning_combinations:
-        if state[combination[0]] == state[combination[1]] == state[combination[2]] != ' ':
+        if state[combination[0]] == state[combination[1]] == state[combination[2]] == state[combination[3]] == state[combination[4]] != ' ':
             return state[combination[0]]
     return None
 
@@ -110,21 +110,21 @@ def imprime_estado(state):
             print('\n')
 
 
-estado_ini = [' ',' ',' ',' ',' ',
-              ' ',' ',' ',' ',' ',
-              ' ',' ',' ',' ',' ',
-              ' ',' ',' ',' ',' ',
-              ' ',' ',' ',' ',' ']
+# estado_ini = [' ',' ',' ',' ',' ',
+#               ' ',' ',' ',' ',' ',
+#               ' ',' ',' ',' ',' ',
+#               ' ',' ',' ',' ',' ',
+#               ' ',' ',' ',' ',' ']
 
-# estado_ini = ['X','O','O',' ','X',
-#               ' ','X',' ','O',' ',
-#               'O',' ','O',' ','X',
-#               ' ','O','X',' ','O',
-#               'X','O','X',' ',' ']
+estado_ini = ['X','O','O',' ','X',
+              ' ','X',' ','O',' ',
+              'O','O','X','O','X',
+              ' ',' ','X',' ','O',
+              'X','O','X',' ',' ']
 
-# # Teste minimax (esta fazendo jogadas não otimizadas)
-
+# Teste minimax (esta fazendo jogadas não otimizadas)
 imprime_estado(estado_ini)
+print(final(estado_ini))
 while(not final(estado_ini)):
     pos = int(input("Escolha uma posição para 'O': "))-1
     estado_ini[pos] = 'O'
